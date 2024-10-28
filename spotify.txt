@@ -1,0 +1,126 @@
+from flask import Flask,request
+app=Flask(__name__)
+import requests, json, os
+from replit import db
+from requests.auth import HTTPBasicAuth
+
+def getTracks():
+  clientID = os.environ['CLIENT_ID']
+  clientSecret = os.environ['CLIENT_SECRET']
+  url = "https://accounts.spotify.com/api/token"
+  data = {"grant_type":"client_credentials"}
+  auth = HTTPBasicAuth(clientID, clientSecret)
+  response = requests.post(url, data=data, auth=auth)
+  accessToken = response.json()["access_token"]
+  url = "https://api.spotify.com/v1/search"
+  headers = {"Authorization": f"Bearer {accessToken}"}
+  category=request.form["category"]
+  if category=="Old School":
+    search="?q=album%3Aayo+artist%3Awizkid+year%3A2014-2017&type=track&limit=10&offset=0"
+    fullURL = f"{url}{search}"
+    response = requests.get(fullURL, headers=headers)
+    data=response.json()
+    songs=""
+    f=open("songs.html","r")
+    songs=f.read()
+    f.close()
+    listSongs=""
+    for track in data["tracks"]["items"]:
+      print(track["name"])
+      thisTrack=songs
+      thisTrack=thisTrack.replace("{name}",track["name"])
+      thisTrack=thisTrack.replace("{url}",track["preview_url"])
+      listSongs+=thisTrack
+    return listSongs
+  elif category=="New School":
+    search1="?q=+artist%3ADavido+album%3ATimeless&type=track&limit=10&offset=0"
+    fullURL1= f"{url}{search1}"
+    response1 = requests.get(fullURL1, headers=headers)
+    data1=response1.json()
+    songs=""
+    f=open("songs.html","r")
+    songs=f.read()
+    f.close()
+    listSongs1=""
+    for trac in data1["tracks"]["items"]:
+      print(trac["name"])
+      thisTrack1=songs
+      thisTrack1=thisTrack1.replace("{name}",trac["name"])
+      thisTrack1=thisTrack1.replace("{url}",trac["preview_url"])
+      listSongs1+=thisTrack1
+    return listSongs1
+  elif category=="Rap":
+    search2="?q=+artist%3ABurna+Boy+album%3AI+Told+Them&type=track&limit=10&offset=0"
+    fullURL2= f"{url}{search2}"
+    response2 = requests.get(fullURL2, headers=headers)
+    data2=response2.json()
+    songs=""
+    f=open("songs.html","r")
+    songs=f.read()
+    f.close()
+    listSongs2=""
+    for tra in data2["tracks"]["items"]:
+      thisTrack2=songs
+      thisTrack2=thisTrack2.replace("{name}",tra["name"])
+      print (tra["preview_url"])
+      thisTrack2=thisTrack2.replace("{url}",tra["preview_url"])
+      listSongs2+=thisTrack2
+    return listSongs2
+
+@app.route("/",methods=["POST"])
+def song():
+  page=""
+  f=open("form.html","r")
+  page=f.read()
+  f.close()
+  songs=getTracks()
+  page=page.replace("{songs}",songs)
+  return page
+
+@app.route('/')
+def index():
+  page=""
+  f=open("form.html","r")
+  page=f.read()
+  f.close()
+  page=page.replace("{songs}","")
+  return page
+
+app.run(host="0.0.0.0", port=81)
+
+
+form.html
+
+<html>
+  <head>
+    <title>Road to Becoming An Afrobeat Pro</title>
+    </head>
+  <body>
+    <h1>Road to Becoming An Afrobeat Pro</h1>
+    <form method="post" action="/">
+      <p>
+        Category
+        <select name="category">
+          <option>Old School</option>
+          <option>New School</option>
+          <option>Rap</option>
+        </select>
+      </p>
+      <button type="submit">Go</button>
+      
+      
+    </form>
+    {songs}
+    
+    
+  </body>
+</html>
+
+songs.html
+
+<h2>{name}</h2>
+<br>
+<audio controls>
+  <source src="{url}" type="audio/mpeg">
+</audio>
+<hr>

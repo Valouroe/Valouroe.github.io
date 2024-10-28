@@ -1,0 +1,87 @@
+import json
+from flask import Flask, render_template
+app=Flask(__name__)
+from pip._vendor import requests
+name=input("Enter city name ")
+key="d47e82aaa9517ebd0d4c7ce93be3c989"
+@app.route("/")
+def index():
+    response=requests.get(f"https://api.openweathermap.org/data/2.5/weather?units=metric&q={name}&appid={key}")
+    user=response.json()
+    temp=round(user["main"]["temp"])
+    desc=user["weather"][0]["main"]
+    description=user["weather"][0]["description"]
+    page=""
+    f=open(r"C:\Users\vokey\.vscode\.vscode\weather\index.html","r")
+    page=f.read()
+    f.close()
+    page=page.replace("{temp}",str(temp)+"°C")
+    page=page.replace("{name}",name)
+    page=page.replace("{desc}",desc)
+    page=page.replace("{description}",description)
+    return page
+app.run(host='0.0.0.0')
+
+HTML
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/static/s.css" type="text/css">
+</head>
+<body>
+    <div class="card">
+        <div class="weather">
+            <p id="des">{desc}</p>
+            <h1>{description}</h1>
+            <img src="" id="weather-icon">
+            <h1 class="temp">{temp}</h1>
+            <h2 class="city">{name}</h2>
+        </div>
+    </div>
+        
+</body>
+<script src="/static/script.js"></script>
+</html>
+
+CSS
+
+.card{
+    width:90%;
+    max-width:470px;
+    background-color: cyan;
+    margin:100px auto 0;
+    border-radius:20px;
+    padding:40px 35px;
+    text-align:center;
+}
+.card p{
+    display:none;
+}
+.card desc h1{
+    background-color:darkseagreen
+}
+
+JavaScript
+
+const w=document.getElementById("weather-icon");
+var d=document.getElementById("des").innerHTML
+console.log(d);
+    if(d=="Clouds"){
+        w.src="/static/clouds.png";
+    }
+    else if(d=="Clear"){
+        w.src="/static/clear.png";
+    }
+    else if(d=="Rain"){
+        w.src="/static/rain.png";
+    }
+    else if(d=="Drizzle"){
+        w.src="/static/drizzle.png";
+    }
+    else if(d=="Mist"){
+        w.src="/static/mist.png";
+    }
